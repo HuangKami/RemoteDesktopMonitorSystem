@@ -14,8 +14,10 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
+import service.RobotThread;
 import service.ShowOldMessageThread;
-import client.Client;
+import client.RobotClient;
+import client.ShowMessageClient;
 
 
 @SuppressWarnings("rawtypes")
@@ -30,7 +32,8 @@ public class UserUI extends JFrame {
 	private JButton btSend;
 	private JButton btClosed;
 	private JButton upLine;
-	private Client client;
+	private ShowMessageClient showMessageClient;
+	private RobotClient robotClient;
 	private String clientName;
 	private Vector users;
 	
@@ -38,7 +41,9 @@ public class UserUI extends JFrame {
 
 	public UserUI(final String clientName) {
 		this.clientName = clientName;
-		client = new Client(clientName);
+		showMessageClient = new ShowMessageClient(clientName);
+		
+	//	new RobotClient();
 		
 		this.setTitle("欢迎您：" + clientName);
 		
@@ -116,10 +121,9 @@ public class UserUI extends JFrame {
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		userListPane.setBounds(400, 0, 200, 600);
-
 		// new 一个UserUI时，此线程启动，获取服务器端回发的消息
-		new Thread(new ShowOldMessageThread(client, users, userList, oldMessageTextArea)).start();
-
+		new Thread(new ShowOldMessageThread(showMessageClient, users, userList, oldMessageTextArea)).start();
+		
 		// 将所有组件添加到窗体上
 		this.add(oldMessageTextArea);
 		this.add(sendMessageTextArea);
@@ -133,7 +137,7 @@ public class UserUI extends JFrame {
 		upLine.setEnabled(false);
 		String s1 = sendMessageTextArea.getText();
 		String s = s1.replaceAll("\r\n", "");
-		client.getPs().println(clientName + "说：" + s);
+		showMessageClient.getPs().println(clientName + "说：" + s);
 		sendMessageTextArea.setText("");
 	}
 }
