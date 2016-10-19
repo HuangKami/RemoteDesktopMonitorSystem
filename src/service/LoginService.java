@@ -29,7 +29,7 @@ public class LoginService {
 		if(user.isSelected()) {
 			UserDao ud = new UserDao();
 			if(ud.checkUser(username, password)) {
-				new UserUI(username).setVisible(true);
+				new Thread(new UserUI(username)).start();
 				b = true;
 			} else {
 				JOptionPane.showMessageDialog(null, "登录失败：用户名或密码错误", "警告", JOptionPane.OK_OPTION);
@@ -37,7 +37,7 @@ public class LoginService {
 		} else {
 			AdminDao ad = new AdminDao();
 			if(ad.checkAdmin(username, password)) {
-				new AdminUI();
+				new Thread(new AdminUI()).start();
 				b = true;
 			} else {
 				JOptionPane.showMessageDialog(null, "登录失败：用户名或密码错误", "警告", JOptionPane.OK_OPTION);

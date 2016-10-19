@@ -1,100 +1,155 @@
 package ui;
 
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.io.IOException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.zip.ZipInputStream;
+import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+
+import server.DisplayServer;
+import server.MonitorServer;
+import server.ShowMessageServer;
+import dao.UserDao;
+
 
 
 /*
  * 用户主界面
  * @author Kami
  */
-public class AdminUI extends JFrame {
+public class AdminUI extends JFrame implements ActionListener, Runnable {
 	
 	private static final long serialVersionUID = 1L;
 
-	public AdminUI() {  
-        super();  
-        Toolkit.getDefaultToolkit().getScreenSize();  
-        this.setSize(800, 640);  
-        Screen p = new Screen();  
-        Container c = this.getContentPane();  
-        c.setLayout(new BorderLayout());  
-        c.add(p, SwingConstants.CENTER);  
-        new Thread(p).start();  
-        SwingUtilities.invokeLater(new Runnable(){  
-            public void run() {  
-                setVisible(true);  
-            }
-        });  
-    }  
-  
-    class Screen extends JPanel implements Runnable {  
-  
-        private static final long serialVersionUID = 1L;  
-        private Image cimage;  
-  
-        public void run() {  
-            ServerSocket ss = null;  
-            try {  
-                ss = new ServerSocket(8888);
-                while (true) {  
-                    Socket s = null;  
-                    try {  
-                        s = ss.accept();  
-                        ZipInputStream zis = new ZipInputStream(s  
-                                .getInputStream());  
-                        zis.getNextEntry();  
-                        cimage = ImageIO.read(zis);// 把ZIP流转换为图片  
-                        repaint();  
-                    } catch (Exception e) {  
-                        e.printStackTrace();  
-                    } finally {  
-                        if (s != null) {  
-                            try {  
-                                s.close();  
-                            } catch (IOException e) {  
-                                e.printStackTrace();  
-                            }  
-                        }  
-                    }  
-                }  
-            } catch (Exception e) {  
-            } finally {  
-                if (ss != null) {  
-                    try {  
-                        ss.close();  
-                    } catch (IOException e) {  
-                        e.printStackTrace();  
-                    }  
-                }  
-            }  
-        }  
-  
-        public Screen() {  
-            super();  
-            this.setLayout(null);  
-        }  
-  
-        public void paint(Graphics g) {  
-            super.paint(g);  
-            Graphics2D g2 = (Graphics2D) g;  
-            g2.drawImage(cimage, 0, 0, null);  
-        }  
-    }
+	private JButton b1, b2, b3, b4;
+	private DisplayServer display;
+	private ShowMessageServer message;
+	private MonitorServer monitor;
+	private DataOutputStream dos;
+	private ArrayList<Socket>  list = new ArrayList<Socket>();
+	private String str;
 	
+	public AdminUI() {
+		b1 = new JButton("聊天");
+		b2 = new JButton("直播");
+		b3 = new JButton("监控");
+		b4 = new JButton("文件传输");
+		
+		JPanel jp = new JPanel();
+		jp.add(b1);
+		jp.add(b2);
+		jp.add(b3);
+		jp.add(b4);
+		
+		b1.addActionListener(this);
+		b2.addActionListener(this);
+		b3.addActionListener(this);
+		b4.addActionListener(this);
+		
+		if(display == null) {
+			display = new DisplayServer();
+			new Thread(display.new SocketListener()).start();
+		}
+		
+		if(message == null) {
+			message = new ShowMessageServer();
+			new Thread(message.new SocketListener()).start();
+		}
+		
+		if(monitor == null) {
+			monitor = new MonitorServer();
+			new Thread(monitor.new SocketListener()).start();
+		}
+		
+		this.add(jp);
+		this.setTitle("Admin");
+		this.setSize(350, 80);
+		this.setLocation(900, 40);
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setVisible(true);
+		
+		new Thread(new ListHand()).start();
+		///new Thread(new MonitorUI(str)).start();
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == b1) {
+			new ChatUI("admin").setVisible(true);
+		}
+		
+		if(e.getSource() == b2) {
+			try {
+				for (int i = 0; i < list.size(); i++) {
+					Socket socket = list.get(i);
+					dos = new DataOutputStream(
+							socket.getOutputStream());
+					dos.writeUTF("Yes");
+				}
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			} 
+		}
+		
+		if(e.getSource() == b3) {
+			try {
+				for (int i = 0; i < list.size(); i++) {
+					Socket socket = list.get(i);
+					dos = new DataOutputStream(
+							socket.getOutputStream());
+					dos.writeUTF("KKK");
+				}
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			} 
+		}
+	}
+
+
+	@Override
+	public void run() {
+		try {
+			@SuppressWarnings("resource")
+			ServerSocket ss = new ServerSocket(7777);
+			while(true) {
+				Socket socket = ss.accept();
+				list.add(socket);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	
+	private class ListHand implements Runnable {
+		
+		public void run() {
+			while(true) {
+				for (int i = 0; i < list.size(); i++) {
+					try {
+						Socket s = list.get(i);
+						DataInputStream dis = new DataInputStream(
+								s.getInputStream());
+						str = dis.readUTF();
+						UserDao userDao = new UserDao();
+						if(userDao.findUser(str) != null) {
+							JOptionPane.showMessageDialog(null, str + "举手", "提示", JOptionPane.OK_OPTION);
+						}
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+	}
 }

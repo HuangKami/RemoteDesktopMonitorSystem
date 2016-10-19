@@ -28,7 +28,7 @@ public class ShowMessageServer {
 	}
 
 	// 内部类，监听客户端是否有连接到服务器，并将此客户端的Socket传递给HandleSocket进行处理，同时将client存放到List中，即clientConnection中
-	private class SocketListener implements Runnable {
+	public class SocketListener implements Runnable {
 		public void run() {
 			Socket client;
 			try {
@@ -86,10 +86,5 @@ public class ShowMessageServer {
 		}
 	}
 	
-	
-	
-	public static void main(String[] args) {
-		new Thread(new ShowMessageServer().new SocketListener()).start();
-	}
 
 }

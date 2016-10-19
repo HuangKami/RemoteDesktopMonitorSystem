@@ -6,18 +6,18 @@ import java.util.Vector;
 
 import javax.swing.JList;
 
-import client.Client;
+import client.ChatClient;
 
 @SuppressWarnings("rawtypes")
 public class ShowOldMessageThread implements Runnable {
 	
-	private Client client;
+	private ChatClient chatClient;
 	private Vector users;
 	private JList userList;
 	private TextArea oldMessageTextArea;
 	
-	public ShowOldMessageThread(Client client, Vector users, JList userList, TextArea oldMessageTextArea) {
-		this.client = client;
+	public ShowOldMessageThread(ChatClient chatClient, Vector users, JList userList, TextArea oldMessageTextArea) {
+		this.chatClient = chatClient;
 		this.users = users;
 		this.userList = userList;
 		this.oldMessageTextArea = oldMessageTextArea;
@@ -29,7 +29,7 @@ public class ShowOldMessageThread implements Runnable {
 		while (flag) {
 			try {
 				// 接收群聊服务器端回发过来的消息
-				String serverOutput = client.getBr().readLine() + "\r\n";
+				String serverOutput = chatClient.getBr().readLine() + "\r\n";
 				if (!(serverOutput.substring(serverOutput
 								.indexOf("：") + 1).equals("\r\n"))) {
 					String s = serverOutput.replace('说', ' ');
