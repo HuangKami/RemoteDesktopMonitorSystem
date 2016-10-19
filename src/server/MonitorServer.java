@@ -75,6 +75,7 @@ class ScreenThread extends JFrame implements Runnable {
 			panel.add(backImage);
 			this.setTitle(clientName);
 			this.add(scrollPane);
+			this.setLocationRelativeTo(null);
 			this.setVisible(true);
 			while(true){
 				//先读取数据大小

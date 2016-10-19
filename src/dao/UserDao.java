@@ -90,5 +90,24 @@ public class UserDao {
 		return b;
 	}
 	
+	public boolean register(String username, String password) {
+		boolean b = false;
+		try {
+			conn = DB.getConn();
+			String sql = "insert into user (username, password) values (?, ?)";
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, username);
+			ps.setString(2, password);
+			if(ps.executeUpdate() != 0) {
+				b = true;
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DB.close(conn, ps, rs);
+		}
+		
+		return b;
+	}
 	
 }

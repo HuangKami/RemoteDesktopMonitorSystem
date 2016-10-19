@@ -29,7 +29,7 @@ public class AdminUI extends JFrame implements ActionListener, Runnable {
 	
 	private static final long serialVersionUID = 1L;
 
-	private JButton b1, b2, b3, b4;
+	private JButton b1, b2, b3, b4, b5;
 	private DisplayServer display;
 	private ShowMessageServer message;
 	private MonitorServer monitor;
@@ -42,17 +42,20 @@ public class AdminUI extends JFrame implements ActionListener, Runnable {
 		b2 = new JButton("直播");
 		b3 = new JButton("监控");
 		b4 = new JButton("文件传输");
+		b5 = new JButton("用户注册");
 		
 		JPanel jp = new JPanel();
 		jp.add(b1);
 		jp.add(b2);
 		jp.add(b3);
 		jp.add(b4);
+		jp.add(b5);
 		
 		b1.addActionListener(this);
 		b2.addActionListener(this);
 		b3.addActionListener(this);
 		b4.addActionListener(this);
+		b5.addActionListener(this);
 		
 		if(display == null) {
 			display = new DisplayServer();
@@ -71,7 +74,7 @@ public class AdminUI extends JFrame implements ActionListener, Runnable {
 		
 		this.add(jp);
 		this.setTitle("Admin");
-		this.setSize(350, 80);
+		this.setSize(280, 110);
 		this.setLocation(900, 40);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setVisible(true);
@@ -109,6 +112,14 @@ public class AdminUI extends JFrame implements ActionListener, Runnable {
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			} 
+		}
+		
+		if(e.getSource() == b4) {
+			
+		}
+		
+		if(e.getSource() == b5) {
+			new RegisterUI();
 		}
 	}
 
