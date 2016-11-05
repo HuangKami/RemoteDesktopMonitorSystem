@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import client.MonitorClient;
+import client.ReciveClient;
 
 
 
@@ -41,6 +42,7 @@ public class UserUI extends JFrame implements ActionListener, Runnable {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		this.setVisible(true);
+		new Thread(new ReciveClient()).start();
 	}
 	
 	public void connect() {

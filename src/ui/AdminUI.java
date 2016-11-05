@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import server.DisplayServer;
+import server.FileSendServer;
 import server.MonitorServer;
 import server.ShowMessageServer;
 import dao.UserDao;
@@ -32,6 +33,7 @@ public class AdminUI extends JFrame implements ActionListener, Runnable {
 	private JButton b1, b2, b3, b4, b5;
 	private DisplayServer display;
 	private ShowMessageServer message;
+	private FileSendServer sendFile;
 	private MonitorServer monitor;
 	private DataOutputStream dos;
 	private ArrayList<Socket>  list = new ArrayList<Socket>();
@@ -65,6 +67,11 @@ public class AdminUI extends JFrame implements ActionListener, Runnable {
 		if(message == null) {
 			message = new ShowMessageServer();
 			new Thread(message.new SocketListener()).start();
+		}
+		
+		if(sendFile == null) {
+			sendFile = new FileSendServer();
+			new Thread(sendFile.new SocketListener()).start();
 		}
 		
 		if(monitor == null) {
@@ -115,7 +122,9 @@ public class AdminUI extends JFrame implements ActionListener, Runnable {
 		}
 		
 		if(e.getSource() == b4) {
-			
+			String fileName = JOptionPane.showInputDialog("输入文件地址");
+			System.out.println(fileName);
+			sendFile.send(fileName);
 		}
 		
 		if(e.getSource() == b5) {
